@@ -16,6 +16,9 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 import django_on_heroku
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,8 +28,7 @@ with open(os.path.join(BASE_DIR, 'app/password_requirements.json')) as f:
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-SECRET_KEY = 'django-insecure-o_xwy*%0-q-(9=9rwnp0e*!nxfz+k@ps8y1trwpyhh*v*10e8c'
-
+SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = True
 
 AUTH_USER_MODEL = 'users.UsersData'
@@ -42,8 +44,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'comltdpassrestore@gmail.com'
-EMAIL_HOST_PASSWORD = 'zvouslitqkiibcaq'
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 # Application definition
 
@@ -100,7 +102,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'd1lk34ht41afoj',
         'USER': 'gmrsjqoquhtwyh',
-        'PASSWORD': '2ad0462846913d38293db811df9ec662fecb03486ef4de8f8e2ce1b11a5b03dd',
+        'PASSWORD': os.environ.get("DBPASSWORD"),
         'HOST': 'ec2-52-48-159-67.eu-west-1.compute.amazonaws.com',
         'PORT': 5432,
     }
