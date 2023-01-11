@@ -28,12 +28,11 @@ with open(os.path.join(BASE_DIR, 'app/password_requirements.json')) as f:
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-o_xwy*%0-q-(9=9rwnp0e*!nxfz+k@ps8y1trwpyhh*v*10e8c'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 AUTH_USER_MODEL = 'users.UsersData'
 
-ALLOWED_HOSTS = ['*', ]
+ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 # CORS_EXPOSE_HEADERS = (
@@ -146,10 +145,14 @@ STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# STATICFILES_DIRS = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    '/var/www/static/',
+]
+django_on_heroku.settings(locals())
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATIC_ROOT = os.path.join((BASE_DIR, 'staticfiles'))
-STATICFILES_DIRS = os.path.join((BASE_DIR, 'static'))
 
-django_on_heroku.settings(locals())
