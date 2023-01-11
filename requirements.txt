@@ -1,0 +1,11 @@
+asgiref==3.6.0
+dj-database-url==1.2.0
+Django==4.1.5
+django-cors-headers==3.13.0
+django-extensions==3.2.1
+django-on-heroku==1.1.2
+gunicorn==20.1.0
+mysqlclient==2.1.1
+psycopg2-binary==2.9.5
+sqlparse==0.4.3
+whitenoise==6.3.0

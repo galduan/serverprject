@@ -15,7 +15,10 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import django_on_heroku
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 with open(os.path.join(BASE_DIR, 'app/password_requirements.json')) as f:
     password_requirements = json.load(f)
 
@@ -30,7 +33,7 @@ DEBUG = True
 
 AUTH_USER_MODEL = 'users.UsersData'
 
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = ['*', ]
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 # CORS_EXPOSE_HEADERS = (
@@ -43,7 +46,6 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'comltdpassrestore@gmail.com'
 EMAIL_HOST_PASSWORD = 'zvouslitqkiibcaq'
-
 
 # Application definition
 
@@ -92,7 +94,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'app.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -106,7 +107,6 @@ DATABASES = {
         'PORT': 3306,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -126,7 +126,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -140,7 +139,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
@@ -150,3 +148,8 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATIC_ROOT = os.path.join((BASE_DIR, 'staticfiles'))
+STATICFILES_DIRS = os.path.join((BASE_DIR, 'static'))
+
+django_on_heroku.settings(locals())
