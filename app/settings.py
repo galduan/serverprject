@@ -97,12 +97,12 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'serverProject',
-        'USER': 'root',
-        'PASSWORD': 'Bfit12345',
-        'HOST': '127.0.0.1',
-        'PORT': 3306,
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'd1lk34ht41afoj',
+        'USER': 'gmrsjqoquhtwyh',
+        'PASSWORD': '2ad0462846913d38293db811df9ec662fecb03486ef4de8f8e2ce1b11a5b03dd',
+        'HOST': 'ec2-52-48-159-67.eu-west-1.compute.amazonaws.com',
+        'PORT': 5432,
     }
 }
 
@@ -153,5 +153,3 @@ STATICFILES_DIRS = [
 django_on_heroku.settings(locals())
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
