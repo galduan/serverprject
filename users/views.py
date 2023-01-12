@@ -310,7 +310,8 @@ def is_valid_password(password):
         "app/password_requirements.json")
     for special_char in req['password_content']['special_characters']:
         count_special_char += password.count(special_char)
-
+    if password in req['bank_no_password']:
+        return False
     if req['min_length'] > len(password):
         return False
     if count_digit < req['password_content']['min_length_digit']:
