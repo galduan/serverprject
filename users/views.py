@@ -34,9 +34,9 @@ def register(request):
             email = UsersData.objects.raw(
                 f"SELECT * FROM users_usersdata WHERE email = '%s'" % (data['email']))
             if (len(list(user)) != 0):
-                return JsonResponse({"error": "The user name is not valid"})
+                return JsonResponse({"error": "The user name is not valid", 'unSafe': user[0].username})
             elif (len(list(email)) != 0):
-                return JsonResponse({"error": "The email is not valid"})
+                return JsonResponse({"error": "The email is not valid", 'unSafe': email[0].email})
             else:
                 user = UsersData.objects.create_user(
                     data['username'],
@@ -109,7 +109,6 @@ def login_request(request):
         tooManyAttemps = True
         return JsonResponse({'error': 'too Many Attemps'})
     if request.method == 'GET':
-        # unsafe
         data = request.GET
         username = data['username']
         password = data['password']
@@ -128,7 +127,6 @@ def login_request(request):
         else:
             return JsonResponse({'error': 'email or password wrong'})
     else:
-        # safe
         body_unicode = request.body.decode('utf-8')
         data = json.loads(body_unicode) or None
         username = data['username']
@@ -243,7 +241,7 @@ def change_pwd_with_mail(request):
             # login(request, user)
             user.resetCode = None
             user.save()
-            return JsonResponse({'message': 'Password changed successfully', "userName": user.userName})
+            return JsonResponse({'message': 'Password changed successfully', "userName": user.username})
         else:
             return JsonResponse({'error': 'You already used this password, please try again.'})
 
