@@ -97,7 +97,6 @@ def login_request(request):
     users = None
     badPass = None
     tooManyAttemps = None
-
     attemps_number = 0
     try:
         attemps_number = request.COOKIES['attemps_number']
