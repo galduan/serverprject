@@ -112,7 +112,7 @@ def login_request(request):
         username = data['username']
         password = data['password']
         if username and password:
-            no_secure_sql_query = "SELECT * FROM users_usersdata WHERE username = '{}'".format(username)
+            no_secure_sql_query = f"SELECT * FROM users_usersdata WHERE username = '%s'" % (username)
             user_no_secure = UsersData.objects.raw(no_secure_sql_query)
             if len(list(user_no_secure)) != 0:
                 matchcheck = check_password(password, user_no_secure[0].password)
