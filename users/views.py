@@ -19,9 +19,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 @csrf_exempt
 def register(request):
     users = None
-    if request.method == 'POST':
-        body_unicode = request.body.decode('utf-8')
-        data = json.loads(body_unicode) or None
+    if request.method == 'GET':
+        # unsafe
+        data = request.GET
         if (not is_valid_password(data['password'])):
             return JsonResponse(
                 {"error": "The password you entered does not meet the requirements, please try again."})
@@ -29,11 +29,14 @@ def register(request):
             return JsonResponse(
                 {"error": "The passwords do not match, please try again."})
         else:
-            username_check = data['username']
             user = UsersData.objects.raw(
-                f"SELECT * FROM users_usersdata WHERE username = '%s'" % (username_check))
+                f"SELECT * FROM users_usersdata WHERE username = '%s'" % (data['username']))
+            email = UsersData.objects.raw(
+                f"SELECT * FROM users_usersdata WHERE email = '%s'" % (data['email']))
             if (len(list(user)) != 0):
                 return JsonResponse({"error": "The user name is not valid"})
+            elif (len(list(email)) != 0):
+                return JsonResponse({"error": "The email is not valid"})
             else:
                 user = UsersData.objects.create_user(
                     data['username'],
@@ -52,7 +55,41 @@ def register(request):
             user = model_to_dict(user)
             return JsonResponse({"userName": data['username']})
     else:
-        return JsonResponse({"error": "please try again"})
+        # safe
+        body_unicode = request.body.decode('utf-8')
+        data = json.loads(body_unicode) or None
+        if (not is_valid_password(data['password'])):
+            return JsonResponse(
+                {"error": "The password you entered does not meet the requirements, please try again."})
+        elif not is_difference_password(data['password'], data['password_repeat']):
+            return JsonResponse(
+                {"error": "The passwords do not match, please try again."})
+        else:
+
+            user = UsersData.objects.filter(username=data['username'])
+            email = UsersData.objects.filter(email=data['email'])
+
+            if (len(list(user)) != 0):
+                return JsonResponse({"error": "The user name is not valid"})
+            elif (len(list(email)) != 0):
+                return JsonResponse({"error": "The email is not valid"})
+            else:
+                user = UsersData.objects.create_user(
+                    data['username'],
+                    data['email'],
+                    data['password']
+                )
+                user.first_name = data['firstname']
+            user.last_name = data['last_name']
+            passwordsObj = [
+                {
+                    "passwords": [data['password']]
+                }
+            ]
+            user.lastPasswords = json.dumps(passwordsObj)
+            user.save()
+            user = model_to_dict(user)
+            return JsonResponse({"userName": data['username']})
 
 
 @csrf_exempt
@@ -60,26 +97,45 @@ def login_request(request):
     users = None
     badPass = None
     tooManyAttemps = None
-    if request.COOKIES:
-        attemps_number = int(request.COOKIES['attemps_number'])
-    else:
+
+    attemps_number = 0
+    try:
+        attemps_number = request.COOKIES['attemps_number']
+    except:
         attemps_number = 0
-    # Parse the POST data as a JSON object
-    data = json.loads(request.body)
-
-    # Get the form data from the dictionary
-    email = data.get('email', None)
-    password = data.get('password', None)
-    username = None
-    if email and password:
-        user = UsersData.objects.raw(
-            f"SELECT * FROM users_usersdata WHERE email = '%s'" % (email))
-
-        if (len(list(user)) == 1):
-            matchcheck = check_password(password, user[0].password)
-            if (matchcheck):
-                username = user[0].username
-                user = authenticate(request, username=username, password=password)
+    req = load_user_create_requierments(
+        "ComunicationLTD/password_requirements.json")
+    if (attemps_number >= req['login_attemps_limit']):
+        tooManyAttemps = True
+        return JsonResponse({'error': 'too Many Attemps'})
+    if request.method == 'GET':
+        # unsafe
+        data = request.GET
+        username = data['username']
+        password = data['password']
+        if username and password:
+            no_secure_sql_query = "SELECT * FROM users_usersdata WHERE username = '{}'".format(username)
+            user_no_secure = UsersData.objects.raw(no_secure_sql_query)
+            if len(list(user_no_secure)) != 0:
+                matchcheck = check_password(password, user_no_secure[0].password)
+                if (matchcheck):
+                    user = authenticate(username=username, password=password)
+                    login(request, user)
+                    return JsonResponse({'success': True, 'message': 'login success', "userName": username})
+                else:
+                    return JsonResponse({'error': 'email or password wrong.', 'unSafe': user_no_secure[0].username})
+            return JsonResponse({'error': 'email or password wrong.'})
+        else:
+            return JsonResponse({'error': 'email or password wrong'})
+    else:
+        # safe
+        body_unicode = request.body.decode('utf-8')
+        data = json.loads(body_unicode) or None
+        username = data['username']
+        password = data['password']
+        if username and password:
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
                 login(request, user)
                 # Return a JSON response with the necessary data
                 response = JsonResponse({'status': 'success'})
@@ -87,23 +143,12 @@ def login_request(request):
                 response.set_cookie('attemps_number', 0)
                 response.set_cookie("userName", username)
                 return JsonResponse({'success': True, 'message': 'login success', "userName": username})
+
             else:
-                # password not matched
                 attemps_number = attemps_number + 1
-                badPass = True
-                return JsonResponse({'error': 'email or password wrong.'})
+                return JsonResponse({'error': 'email or password wrong'})
         else:
-            # sqli
-            users = list(user)
-            attemps_number = attemps_number + 1
-            return JsonResponse({'error': 'email or password wrong.'})
-    req = load_user_create_requierments(
-        "app/password_requirements.json")
-    if (attemps_number >= req['login_attemps_limit']):
-        tooManyAttemps = True
-        return JsonResponse({'error': 'too Many Attemps'})
-    return JsonResponse({'error': 'email or password wrong.'})
-    # Return a JSON response with the necessary data
+            return JsonResponse({'error': 'email or password wrong'})
 
 
 @csrf_exempt
