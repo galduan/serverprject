@@ -104,7 +104,7 @@ def login_request(request):
     except:
         attemps_number = 0
     req = load_user_create_requierments(
-        "ComunicationLTD/password_requirements.json")
+        "app/password_requirements.json")
     if (attemps_number >= req['login_attemps_limit']):
         tooManyAttemps = True
         return JsonResponse({'error': 'too Many Attemps'})
